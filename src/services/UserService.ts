@@ -1,48 +1,38 @@
 import http from "../http-common";
-import IUser from "../types/User";
+import IUser from "../types/User"
 
-const getAll = () => {
-  console.log('User Service getAll()')
-  return http.get<Array<IUser>>("/teams");
+const getAll = (organisationId: string) => {
+  console.log('Organisation Service getAll()')
+  return http.get<Array<IUser>>("/organisations/:organisationId/users");
 };
 
-const get = (id: any) => {
-  return http.get<IUser>(`/6284993b76172b0235aac138/teams/${id}`);
+const get = (organisationId: string, id: string) => {
+  return http.get<IUser>(`/organisations/${organisationId}/users/${id}`);
 };
 
-const create = (data: IUser) => {
-  return http.post<IUser>("/6284993b76172b0235aac138/teams", data);
+const findByEmail = (organisationId: string, email: string) => {
+  return http.get<IUser>(`/organisations/${organisationId}/users/${email}`);
 };
 
-const update = (id: any, data: IUser) => {
-  return http.post<any>(`/6284993b76172b0235aac138/teams/${id}`, data);
+const create = (organisationId: string, teamId: string, data: IUser) => {
+  return http.post<IUser>("/organisations/${organisationId}/teams/${teamId}/users", data);
 };
 
-const remove = (id: any) => {
-  return http.delete<any>(`/6284993b76172b0235aac138/teams/${id}`);
+const update = (organisationId: string, id: string, data: IUser) => {
+  return http.post<IUser>(`/organisations/${organisationId}/users/${id}`, data);
 };
 
-const removeAll = () => {
-  return http.delete<any>(`/suppliers`);
-};
-
-const findByTitle = (title: string) => {
-  return http.get<Array<IUser>>(`/suppliers?title=${title}`);
-};
-
-const findByName = (title: string) => {
-  return http.get<Array<IUser>>(`/suppliers?title=${title}`);
+const remove = (organisationId: string, id: string) => {
+  return http.delete<any>(`/organisations/${organisationId}/users/${id}`);
 };
 
 const UserService = {
   getAll,
   get,
+  findByEmail,
   create,
   update,
   remove,
-  removeAll,
-  findByName,
-  findByTitle,
 };
 
 export default UserService;

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { RouteComponentProps, Link } from 'react-router-dom';
 
-import UserDataService from "../../services/SupplierService";
+import UserService from "../../services/UserService";
 import IUser from "../../types/User";
 
 interface RouterProps { // type for `match.params`
+  organisationId: string;
+  teamId: string;
   id: string; // must be type `string` since value comes from the URL
 }
 
@@ -22,9 +24,23 @@ const User: React.FC<Props> = (props: Props) => {
   };
   const [currentUser, setCurrentUser] = useState<IUser>(initialUserState);
   const [message, setMessage] = useState<string>("");
+  const [organisationId, setOrganisationId] = useState<string>("");
+  const [teamId, setTeamId] = useState<string>("");
+
+  useEffect(() => {
+     setOrganisationId(props.match.params.organisationId);
+  }, [props.match.params.organisationId]);
+
+  useEffect(() => {
+      setTeamId(props.match.params.teamId);
+  }, [props.match.params.teamId]);
+
+  useEffect(() => {
+      getUser(props.match.params.id);
+    }, [props.match.params.id]);
 
   const getUser = (id: string) => {
-    UserDataService.get(id)
+    UserService.get(organisationId, id)
       .then((response: any) => {
         setCurrentUser(response.data);
         console.log(response.data);
@@ -34,9 +50,6 @@ const User: React.FC<Props> = (props: Props) => {
       });
   };
 
-  useEffect(() => {
-    getUser(props.match.params.id);
-  }, [props.match.params.id]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -52,7 +65,7 @@ const User: React.FC<Props> = (props: Props) => {
       published: status
     };
 /*
-    UserDataService.update(currentUser.id, data)
+    UserService.update(currentUser.id, data)
       .then((response: any) => {
         console.log(response.data);
         setCurrentUser({ ...currentUser, published: status });
@@ -65,7 +78,7 @@ const User: React.FC<Props> = (props: Props) => {
 
   const updateUser = () => {
    /*
-    UserDataService.update(currentUser.id, currentUser)
+    UserService.update(currentUser.id, currentUser)
       .then((response: any) => {
         console.log(response.data);
         setMessage("The supplier was updated successfully!");
@@ -77,7 +90,7 @@ const User: React.FC<Props> = (props: Props) => {
 
   const deleteUser = () => {
     console.log('Deleting team with id '+currentUser.id)
-    UserDataService.remove(currentUser.id)
+    UserService.remove(organisationId, currentUser.id)
       .then((response: any) => {
         props.history.push("/suppliers");
       })

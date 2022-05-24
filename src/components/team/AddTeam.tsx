@@ -1,32 +1,52 @@
-import React, { useState, ChangeEvent } from "react";
-import SupplierDataService from "../../services/SupplierService";
-import ISupplierData from '../../types/Supplier';
+import React, { useEffect, useState, ChangeEvent } from "react";
+import { RouteComponentProps } from "react-router-dom";
+import TeamService from "../../services/TeamService";
+import ITeam from '../../types/Team';
+import IUser from '../../types/User';
 
-const AddTeam: React.FC = () => {
-  const initialSupplierState = {
+type Props = RouteComponentProps<RouterProps>;
+
+interface RouterProps { // type for `match.params`
+  organisationId: string; // must be type `string` since value comes from the URL
+}
+
+const AddTeam: React.FC<Props> = (props: Props) => {
+  const initialTeamState = {
     id: null,
+    organisationId: "",
     name: "",
     description: "",
+    users: new Array<IUser>(),
     published: false
   };
-  const [supplier, setSupplier] = useState<ISupplierData>(initialSupplierState);
+  const [team, setTeam] = useState<ITeam>(initialTeamState);
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [organisationId, setOrganisationId] = useState<string>("");
+
+  useEffect(() => {
+      setOrganisationId(props.match.params.organisationId);
+   }, [props.match.params.organisationId]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setSupplier({ ...supplier, [name]: value });
+    setTeam({ ...team, [name]: value });
   };
 
-  const saveSupplier = () => {
+  const saveTeam = () => {
     var data = {
-      name: supplier.name,
-      description: supplier.description
+      organisationId: organisationId,
+      name: team.name,
+      description: team.description,
+      published: false,
     };
 
-    SupplierDataService.create(data)
+    //let orgId: string = this.organisationId;
+
+    TeamService.create(organisationId, data)
       .then((response: any) => {
-        setSupplier({
+        setTeam({
           id: response.data.id,
+          organisationId: response.data.organisationId,
           name: response.data.name,
           description: response.data.description,
           published: response.data.published
@@ -39,8 +59,8 @@ const AddTeam: React.FC = () => {
       });
   };
 
-  const newSupplier = () => {
-    setSupplier(initialSupplierState);
+  const newTeam = () => {
+    setTeam(initialTeamState);
     setSubmitted(false);
   };
 
@@ -49,7 +69,7 @@ const AddTeam: React.FC = () => {
       {submitted ? (
         <div>
           <h4>You submitted successfully!</h4>
-          <button className="btn btn-success" onClick={newSupplier}>
+          <button className="btn btn-success" onClick={newTeam}>
             Add
           </button>
         </div>
@@ -62,7 +82,7 @@ const AddTeam: React.FC = () => {
               className="form-control"
               id="name"
               required
-              value={supplier.name}
+              value={team.name}
               onChange={handleInputChange}
               name="name"
             />
@@ -75,13 +95,13 @@ const AddTeam: React.FC = () => {
               className="form-control"
               id="description"
               required
-              value={supplier.description}
+              value={team.description}
               onChange={handleInputChange}
               name="description"
             />
           </div>
 
-          <button onClick={saveSupplier} className="btn btn-success">
+          <button onClick={saveTeam} className="btn btn-success">
             Submit
           </button>
         </div>

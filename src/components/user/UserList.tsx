@@ -1,30 +1,49 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
-import SupplierDataService from "../../services/SupplierService";
-import { Link } from "react-router-dom";
-import ISupplierData from '../../types/Supplier';
+import { RouteComponentProps, Link } from 'react-router-dom';
 
-const UserList: React.FC = () => {
-  const [suppliers, setSuppliers] = useState<Array<ISupplierData>>([]);
-  const [currentSupplier, setCurrentSupplier] = useState<ISupplierData | null>(null);
+import UserService from "../../services/UserService";
+import IUser from '../../types/User';
+
+interface RouterProps { // type for `match.params`
+  organisationId: string;
+  teamId: string;
+  id: string; // must be type `string` since value comes from the URL
+}
+
+type Props = RouteComponentProps<RouterProps>;
+
+const UserList: React.FC<Props> = (props: Props) => {
+  const [users, setUsers] = useState<Array<IUser>>([]);
+  const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
-  const [searchTitle, setSearchTitle] = useState<string>("");
+  const [searchEmail, setSearchEmail] = useState<string>("");
+  const [organisationId, setOrganisationId] = useState<string>("");
+  const [teamId, setTeamId] = useState<string>("");
 
   useEffect(() => {
-    retrieveSuppliers();
+     setOrganisationId(props.match.params.organisationId);
+  }, [props.match.params.organisationId]);
+
+  useEffect(() => {
+      setTeamId(props.match.params.teamId);
+  }, [props.match.params.teamId]);
+
+  useEffect(() => {
+    retrieveUsersByOrganisationId();
   }, []);
 
-  const onChangeSearchTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    const searchTitle = e.target.value;
-    setSearchTitle(searchTitle);
+  const onChangeSearchEmail = (e: ChangeEvent<HTMLInputElement>) => {
+    const searchEmail = e.target.value;
+    setSearchEmail(searchEmail);
   };
 
-  const retrieveSuppliers = () => {
-    console.log('Looking up teams..')
-    SupplierDataService.getAll()
+  const retrieveUsersByOrganisationId = () => {
+    console.log('Looking up users by organisationId '+organisationId)
+    UserService.getAll(organisationId)
       .then((response: any) => {
         console.log('Received teams..')
         console.log(response.data);
-        setSuppliers(response.data);
+        setUsers(response.data);
       })
       .catch((e: Error) => {
         console.log(e);
@@ -32,32 +51,21 @@ const UserList: React.FC = () => {
   };
 
   const refreshList = () => {
-    retrieveSuppliers();
-    setCurrentSupplier(null);
+    retrieveUsersByOrganisationId();
+    setCurrentUser(null);
     setCurrentIndex(-1);
   };
 
-  const setActiveSupplier = (supplier: ISupplierData, index: number) => {
-    setCurrentSupplier(supplier);
+  const setActiveUser = (user: IUser, index: number) => {
+    setCurrentUser(user);
     setCurrentIndex(index);
   };
 
-  const removeAllSuppliers = () => {
-    SupplierDataService.removeAll()
+  const findByEmail = () => {
+    UserService.findByEmail(organisationId, searchEmail)
       .then((response: any) => {
-        console.log(response.data);
-        refreshList();
-      })
-      .catch((e: Error) => {
-        console.log(e);
-      });
-  };
-
-  const findByTitle = () => {
-    SupplierDataService.findByTitle(searchTitle)
-      .then((response: any) => {
-        setSuppliers(response.data);
-        setCurrentSupplier(null);
+        setUsers(response.data);
+        setCurrentUser(null);
         setCurrentIndex(-1);
         console.log(response.data);
       })
@@ -73,15 +81,15 @@ const UserList: React.FC = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Search by title"
-            value={searchTitle}
-            onChange={onChangeSearchTitle}
+            placeholder="Search by email"
+            value={searchEmail}
+            onChange={onChangeSearchEmail}
           />
           <div className="input-group-append">
             <button
               className="btn btn-outline-secondary"
               type="button"
-              onClick={findByTitle}
+              onClick={findByEmail}
             >
               Search
             </button>
@@ -92,52 +100,53 @@ const UserList: React.FC = () => {
         <h4>Users List</h4>
 
         <ul className="list-group">
-          {suppliers &&
-            suppliers.map((supplier, index) => (
+          {users &&
+            users.map((user, index) => (
               <li
                 className={
                   "list-group-item " + (index === currentIndex ? "active" : "")
                 }
-                onClick={() => setActiveSupplier(supplier, index)}
+                onClick={() => setActiveUser(user, index)}
                 key={index}
               >
-                {supplier.name}
+                {user.email}
               </li>
             ))}
         </ul>
 
-        <button
-          className="m-3 btn btn-sm btn-danger"
-          onClick={removeAllSuppliers}
-        >
-          Remove All
-        </button>
+
       </div>
       <div className="col-md-6">
-        {currentSupplier ? (
+        {currentUser ? (
           <div>
-            <h4>Supplier</h4>
+            <h4>User</h4>
             <div>
               <label>
-                <strong>Title:</strong>
+                <strong>First Name:</strong>
               </label>{" "}
-              {currentSupplier.name}
+              {currentUser.firstname}
             </div>
             <div>
               <label>
-                <strong>Description:</strong>
+                <strong>Last Name:</strong>
               </label>{" "}
-              {currentSupplier.description}
+              {currentUser.lastname}
+            </div>
+            <div>
+              <label>
+                <strong>Email:</strong>
+              </label>{" "}
+              {currentUser.email}
             </div>
             <div>
               <label>
                 <strong>Status:</strong>
               </label>{" "}
-              {currentSupplier.published ? "Published" : "Pending"}
+              {currentUser.published ? "Published" : "Pending"}
             </div>
 
             <Link
-              to={"/suppliers/" + currentSupplier.id}
+              to={"/users/" + currentUser.id}
               className="badge badge-warning"
             >
               Edit
@@ -146,7 +155,7 @@ const UserList: React.FC = () => {
         ) : (
           <div>
             <br />
-            <p>Please click on a Supplier...</p>
+            <p>Please click on a User...</p>
           </div>
         )}
       </div>

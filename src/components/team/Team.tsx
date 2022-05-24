@@ -1,11 +1,12 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { RouteComponentProps, Link } from 'react-router-dom';
 
-import TeamDataService from "../../services/SupplierService";
-import ITeamData from "../../types/Team";
+import TeamService from "../../services/TeamService";
+import ITeam from "../../types/Team";
 import IUser from "../../types/User";
 
 interface RouterProps { // type for `match.params`
+  organisationId: string;
   id: string; // must be type `string` since value comes from the URL
 }
 
@@ -20,11 +21,16 @@ const Team: React.FC<Props> = (props: Props) => {
     users: new Array<IUser>(),
     published: false
   };
-  const [currentTeam, setCurrentTeam] = useState<ITeamData>(initialTeamState);
+  const [currentTeam, setCurrentTeam] = useState<ITeam>(initialTeamState);
   const [message, setMessage] = useState<string>("");
+  const [organisationId, setOrganisationId] = useState<string>("");
+
+  useEffect(() => {
+       setOrganisationId(props.match.params.organisationId);
+  }, [props.match.params.organisationId]);
 
   const getTeam = (id: string) => {
-    TeamDataService.get(id)
+    TeamService.get(organisationId, id)
       .then((response: any) => {
         setCurrentTeam(response.data);
         console.log(response.data);
@@ -46,12 +52,13 @@ const Team: React.FC<Props> = (props: Props) => {
   const updatePublished = (status: boolean) => {
     var data = {
       id: currentTeam.id,
+      organisationId: currentTeam.organisationId,
       name: currentTeam.name,
       description: currentTeam.description,
       published: status
     };
 
-    TeamDataService.update(currentTeam.id, data)
+    TeamService.update(organisationId, currentTeam.id, data)
       .then((response: any) => {
         console.log(response.data);
         setCurrentTeam({ ...currentTeam, published: status });
@@ -63,7 +70,7 @@ const Team: React.FC<Props> = (props: Props) => {
   };
 
   const updateTeam = () => {
-    TeamDataService.update(currentTeam.id, currentTeam)
+    TeamService.update(organisationId, currentTeam.id, currentTeam)
       .then((response: any) => {
         console.log(response.data);
         setMessage("The supplier was updated successfully!");
@@ -75,7 +82,7 @@ const Team: React.FC<Props> = (props: Props) => {
 
   const deleteTeam = () => {
     console.log('Deleting team with id '+currentTeam.id)
-    TeamDataService.remove(currentTeam.id)
+    TeamService.remove(currentTeam.id)
       .then((response: any) => {
         props.history.push("/suppliers");
       })

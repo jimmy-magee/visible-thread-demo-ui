@@ -1,30 +1,30 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
-import SupplierDataService from "../../services/SupplierService";
 import { Link } from "react-router-dom";
-import ISupplierData from '../../types/Supplier';
+import TeamService from "../../services/TeamService";
+import ITeam from '../../types/Team';
 
 const TeamList: React.FC = () => {
-  const [suppliers, setSuppliers] = useState<Array<ISupplierData>>([]);
-  const [currentSupplier, setCurrentSupplier] = useState<ISupplierData | null>(null);
+  const [teams, setTeams] = useState<Array<ITeam>>([]);
+  const [currentTeam, setCurrentTeam] = useState<ITeam | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
-  const [searchTitle, setSearchTitle] = useState<string>("");
+  const [searchName, setSearchName] = useState<string>("");
 
   useEffect(() => {
-    retrieveSuppliers();
+    retrieveTeams();
   }, []);
 
-  const onChangeSearchTitle = (e: ChangeEvent<HTMLInputElement>) => {
-    const searchTitle = e.target.value;
-    setSearchTitle(searchTitle);
+  const onChangeSearchName = (e: ChangeEvent<HTMLInputElement>) => {
+    const searchName = e.target.value;
+    setSearchName(searchName);
   };
 
-  const retrieveSuppliers = () => {
+  const retrieveTeams = () => {
     console.log('Looking up teams..')
-    SupplierDataService.getAll()
+    TeamService.getAll()
       .then((response: any) => {
         console.log('Received teams..')
         console.log(response.data);
-        setSuppliers(response.data);
+        setTeams(response.data);
       })
       .catch((e: Error) => {
         console.log(e);
@@ -32,39 +32,27 @@ const TeamList: React.FC = () => {
   };
 
   const refreshList = () => {
-    retrieveSuppliers();
-    setCurrentSupplier(null);
+    retrieveTeams();
+    setCurrentTeam(null);
     setCurrentIndex(-1);
   };
 
-  const setActiveSupplier = (supplier: ISupplierData, index: number) => {
-    setCurrentSupplier(supplier);
+  const setActiveTeam = (team: ITeam, index: number) => {
+    setCurrentTeam(team);
     setCurrentIndex(index);
   };
 
-  const removeAllSuppliers = () => {
-    SupplierDataService.removeAll()
-      .then((response: any) => {
-        console.log(response.data);
-        refreshList();
-      })
-      .catch((e: Error) => {
-        console.log(e);
-      });
-  };
-
-  const findByTitle = () => {
-    SupplierDataService.findByTitle(searchTitle)
-      .then((response: any) => {
-        setSuppliers(response.data);
-        setCurrentSupplier(null);
-        setCurrentIndex(-1);
-        console.log(response.data);
-      })
-      .catch((e: Error) => {
-        console.log(e);
-      });
-  };
+  const findByName = () => {
+      TeamService.findByName(searchName)
+        .then((response: any) => {
+          setCurrentTeam(response.data);
+          setCurrentIndex(-1);
+          console.log(response.data);
+        })
+        .catch((e: Error) => {
+          console.log(e);
+        });
+    };
 
   return (
     <div className="list row">
@@ -74,14 +62,14 @@ const TeamList: React.FC = () => {
             type="text"
             className="form-control"
             placeholder="Search by title"
-            value={searchTitle}
-            onChange={onChangeSearchTitle}
+            value={searchName}
+            onChange={onChangeSearchName}
           />
           <div className="input-group-append">
             <button
               className="btn btn-outline-secondary"
               type="button"
-              onClick={findByTitle}
+              onClick={findByName}
             >
               Search
             </button>
@@ -92,52 +80,46 @@ const TeamList: React.FC = () => {
         <h4>Teams List</h4>
 
         <ul className="list-group">
-          {suppliers &&
-            suppliers.map((supplier, index) => (
+          {teams &&
+            teams.map((team, index) => (
               <li
                 className={
                   "list-group-item " + (index === currentIndex ? "active" : "")
                 }
-                onClick={() => setActiveSupplier(supplier, index)}
+                onClick={() => setActiveTeam(team, index)}
                 key={index}
               >
-                {supplier.name}
+                {team.name}
               </li>
             ))}
         </ul>
 
-        <button
-          className="m-3 btn btn-sm btn-danger"
-          onClick={removeAllSuppliers}
-        >
-          Remove All
-        </button>
       </div>
       <div className="col-md-6">
-        {currentSupplier ? (
+        {currentTeam ? (
           <div>
-            <h4>Supplier</h4>
+            <h4>Team</h4>
             <div>
               <label>
                 <strong>Title:</strong>
               </label>{" "}
-              {currentSupplier.name}
+              {currentTeam.name}
             </div>
             <div>
               <label>
                 <strong>Description:</strong>
               </label>{" "}
-              {currentSupplier.description}
+              {currentTeam.description}
             </div>
             <div>
               <label>
                 <strong>Status:</strong>
               </label>{" "}
-              {currentSupplier.published ? "Published" : "Pending"}
+              {currentTeam.published ? "Published" : "Pending"}
             </div>
 
             <Link
-              to={"/suppliers/" + currentSupplier.id}
+              to={"/teams/" + currentTeam.id}
               className="badge badge-warning"
             >
               Edit
@@ -146,7 +128,7 @@ const TeamList: React.FC = () => {
         ) : (
           <div>
             <br />
-            <p>Please click on a Supplier...</p>
+            <p>Please click on a Team...</p>
           </div>
         )}
       </div>
