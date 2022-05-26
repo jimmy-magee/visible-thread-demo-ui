@@ -41,10 +41,12 @@ const App: React.FC = () => {
           <Route exact path={["/", "/organisations"]} component={OrganisationList} />
           <Route exact path={["/organisations/:id"]} component={Organisation} />
           <Route exact path={["/organisation/add"]} component={AddOrganisation} />
-          <Route exact path={["/organisations/:organisationId/teams"]} component={TeamList} />
-          <Route exact path="/organisations/:organisationId/addTeam" component={AddTeam} />
-          <Route path="/organisations/:organisationId/teams/:id" component={Team} />
-          <Route path="/organisations/:organisationId/team/:teamId/users/:id" component={User} />
+          <Route exact path={["/:organisationId/teams"]} component={TeamList} />
+          <Route exact path="/:organisationId/addTeam" component={AddTeam} />
+          <Route path="/:organisationId/teams/:id" component={Team} />
+          <Route path="/:organisationId/users" component={UserList} />
+          <Route path="/:organisationId/addUser" component={AddUser} />
+          <Route path="/:organisationId/user/:id" component={User} />
         </Switch>
       </div>
     </div>

@@ -181,7 +181,7 @@ const Organisation: React.FC<Props> = (props: Props) => {
                                            </td>
                                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{team.description}</td>
                                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                             <Link to={"/organisations/"+team.organisationId+"/teams/"+team.id} className="text-indigo-600 hover:text-indigo-900">
+                                             <Link to={`/${team.organisationId}/teams/${team.id}`} className="text-indigo-600 hover:text-indigo-900">
                                                View<span className="sr-only">, {team.name}</span>
                                              </Link>
                                            </td>

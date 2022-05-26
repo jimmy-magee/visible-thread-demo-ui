@@ -29,11 +29,12 @@ const Team: React.FC<Props> = (props: Props) => {
        setOrganisationId(props.match.params.organisationId);
   }, [props.match.params.organisationId]);
 
-  const getTeam = (id: string) => {
+  const getTeam = (organisationId: string, id: string) => {
     TeamService.get(organisationId, id)
       .then((response: any) => {
-        setCurrentTeam(response.data);
         console.log(response.data);
+        setCurrentTeam(response.data);
+
       })
       .catch((e: Error) => {
         console.log(e);
@@ -41,7 +42,7 @@ const Team: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    getTeam(props.match.params.id);
+    getTeam(props.match.params.organisationId, props.match.params.id);
   }, [props.match.params.id]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +83,7 @@ const Team: React.FC<Props> = (props: Props) => {
 
   const deleteTeam = () => {
     console.log('Deleting team with id '+currentTeam.id)
-    TeamService.remove(currentTeam.id)
+    TeamService.remove(organisationId, currentTeam.id)
       .then((response: any) => {
         props.history.push("/suppliers");
       })
@@ -156,7 +157,7 @@ const Team: React.FC<Props> = (props: Props) => {
                                                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.lastname}</td>
                                                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.email}</td>
                                                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                       <Link to={"/organisations/"+user.organisationId+"/team/"+currentTeam.id+"/users/"+user.id} className="text-indigo-600 hover:text-indigo-900">
+                                                       <Link to={`/${user.organisationId}/user/${user.id}`} className="text-indigo-600 hover:text-indigo-900">
                                                          View<span className="sr-only">, {user.lastname}</span>
                                                        </Link>
                                                      </td>

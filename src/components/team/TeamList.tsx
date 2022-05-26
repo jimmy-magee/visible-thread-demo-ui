@@ -1,13 +1,25 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { RouteComponentProps, Link } from 'react-router-dom';
 import TeamService from "../../services/TeamService";
 import ITeam from '../../types/Team';
 
-const TeamList: React.FC = () => {
+interface RouterProps { // type for `match.params`
+  organisationId: string;
+  id: string; // must be type `string` since value comes from the URL
+}
+
+type Props = RouteComponentProps<RouterProps>;
+
+const TeamList: React.FC<Props> = (props: Props) => {
   const [teams, setTeams] = useState<Array<ITeam>>([]);
   const [currentTeam, setCurrentTeam] = useState<ITeam | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const [searchName, setSearchName] = useState<string>("");
+  const [organisationId, setOrganisationId] = useState<string>("");
+
+    useEffect(() => {
+         setOrganisationId(props.match.params.organisationId);
+    }, [props.match.params.organisationId]);
 
   useEffect(() => {
     retrieveTeams();
@@ -43,7 +55,7 @@ const TeamList: React.FC = () => {
   };
 
   const findByName = () => {
-      TeamService.findByName(searchName)
+      TeamService.findByName(organisationId, searchName)
         .then((response: any) => {
           setCurrentTeam(response.data);
           setCurrentIndex(-1);

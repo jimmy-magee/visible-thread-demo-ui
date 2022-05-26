@@ -4,31 +4,32 @@ import IUser from "../types/User"
 
 const getAll = () => {
   console.log('Organisation Service getAll()')
-  return http.get<Array<ITeam>>("/organisations");
+  return http.get<Array<ITeam>>("/teams");
+};
+
+const getAllByOrganisationId = (organisationId: string) => {
+  console.log('Organisation Service getAll()')
+  return http.get<Array<ITeam>>(`/${organisationId}/teams`);
 };
 
 const get = (organisationId: string, id: string) => {
-  return http.get<ITeam>(`/organisations/${organisationId}/teams/${id}`);
-};
-
-const getTeamUsers = (team: ITeam) => {
-  return http.get<IUser>(`/${team.id}/teams`);
+  return http.get<ITeam>(`/${organisationId}/teams/${id}`);
 };
 
 const create = (organisationId: string, data: ITeam) => {
-  return http.post<ITeam>("/organisations", data);
+  return http.post<ITeam>(`/${organisationId}/teams`, data);
 };
 
 const update = (organisationId: string, id: string, data: ITeam) => {
-  return http.post<ITeam>(`/organisations/${id}`, data);
+  return http.post<ITeam>(`/${organisationId}/teams/${id}`, data);
 };
 
-const remove = (id: any) => {
-  return http.delete<any>(`/organisations/${id}`);
+const remove = (organisationId: string, id: any) => {
+  return http.delete<any>(`/${organisationId}/teams/${id}`);
 };
 
-const findByName = (title: string) => {
-  return http.get<Array<ITeam>>(`/suppliers?title=${title}`);
+const findByName = (organisationId: string, name: string) => {
+  return http.get<Array<ITeam>>(`/${organisationId}/team/${name}`);
 };
 
 const TeamService = {

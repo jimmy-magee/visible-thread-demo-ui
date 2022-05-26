@@ -36,10 +36,10 @@ const User: React.FC<Props> = (props: Props) => {
   }, [props.match.params.teamId]);
 
   useEffect(() => {
-      getUser(props.match.params.id);
+      getUser(props.match.params.organisationId, props.match.params.id);
     }, [props.match.params.id]);
 
-  const getUser = (id: string) => {
+  const getUser = (organisationId:string, id: string) => {
     UserService.get(organisationId, id)
       .then((response: any) => {
         setCurrentUser(response.data);
@@ -106,24 +106,35 @@ const User: React.FC<Props> = (props: Props) => {
           <h4>User</h4>
           <form>
             <div className="form-group">
-              <label htmlFor="title">User Name</label>
+              <label htmlFor="firstname">First Name</label>
               <input
                 type="text"
                 className="form-control"
-                id="title"
-                name="title"
+                id="firstname"
+                name="firstname"
                 value={currentUser.firstname}
                 onChange={handleInputChange}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="description">Description</label>
+              <label htmlFor="lastname">Last Name</label>
               <input
                 type="text"
                 className="form-control"
-                id="description"
-                name="description"
+                id="lastname"
+                name="lastname"
                 value={currentUser.lastname}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="text"
+                className="form-control"
+                id="email"
+                name="email"
+                value={currentUser.email}
                 onChange={handleInputChange}
               />
             </div>
