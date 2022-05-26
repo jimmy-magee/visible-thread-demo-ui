@@ -14,7 +14,7 @@ const getVTDocById = (organisationId: string, userId: string, id:string) => {
 };
 
 const downloadVTDocById = (organisationId: string, userId: string, id:string) => {
-  console.log('VTDocService get by userId(..)')
+  console.log('VTDocService download ', organisationId, userId, id)
   return http.get<any>(`/vtdocs/${organisationId}/users/${userId}/${id}/download`);
 };
 

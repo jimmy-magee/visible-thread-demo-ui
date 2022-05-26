@@ -56,7 +56,16 @@ const User: React.FC<Props> = (props: Props) => {
     };
 
   const downloadVTDocX = ( id: string ) => {
-      console.log('Download VTDoc..',id);
+      console.log('Download VTDoc..',id, currentUser.id, organisationId);
+      VTDocService.downloadVTDocById(organisationId, currentUser.id, id)
+              .then((response: any) => {
+                setMessage(response.data);
+                console.log(response.data);
+              })
+              .catch((e: Error) => {
+                console.log(e);
+              });
+
   };
 
   const downloadVTDoc = (organisationId:string, userId:string, id: string) => {
@@ -198,8 +207,6 @@ const User: React.FC<Props> = (props: Props) => {
             Update
           </button>
 
-          <p>{message}</p>
-
 
 
           {userVTDocs && userVTDocs.length > 0 &&
@@ -242,7 +249,7 @@ const User: React.FC<Props> = (props: Props) => {
                                                        </table>
                                }
 
-
+ <p>{message}</p>
         </div>
       ) : (
         <div>
