@@ -3,12 +3,10 @@ import ITeam from "../types/Team"
 import IUser from "../types/User"
 
 const getAll = () => {
-  console.log('Organisation Service getAll()')
   return http.get<Array<ITeam>>("/teams");
 };
 
 const getAllByOrganisationId = (organisationId: string) => {
-  console.log('Organisation Service getAll()')
   return http.get<Array<ITeam>>(`/${organisationId}/teams`);
 };
 

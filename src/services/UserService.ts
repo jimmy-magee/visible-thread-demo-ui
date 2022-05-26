@@ -26,6 +26,8 @@ const remove = (organisationId: string, id: string) => {
   return http.delete<any>(`/${organisationId}/users/${id}`);
 };
 
+
+
 const UserService = {
   getAll,
   get,

@@ -3,6 +3,8 @@ import { RouteComponentProps, Link } from 'react-router-dom';
 
 import UserService from "../../services/UserService";
 import IUser from "../../types/User";
+import VTDocService from "../../services/VTDocService";
+import IVTDoc from "../../types/VTDoc";
 
 interface RouterProps { // type for `match.params`
   organisationId: string;
@@ -26,6 +28,7 @@ const User: React.FC<Props> = (props: Props) => {
   const [message, setMessage] = useState<string>("");
   const [organisationId, setOrganisationId] = useState<string>("");
   const [teamId, setTeamId] = useState<string>("");
+  const [userVTDocs, setUserVTDocs] = useState<IVTDoc[]>([]);
 
   useEffect(() => {
      setOrganisationId(props.match.params.organisationId);
@@ -37,6 +40,7 @@ const User: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
       getUser(props.match.params.organisationId, props.match.params.id);
+      getUserVTDocs(props.match.params.organisationId, props.match.params.teamId, props.match.params.id)
     }, [props.match.params.id]);
 
   const getUser = (organisationId:string, id: string) => {
@@ -49,6 +53,17 @@ const User: React.FC<Props> = (props: Props) => {
         console.log(e);
       });
   };
+
+  const getUserVTDocs = (organisationId:string, teamId: string, id: string) => {
+      VTDocService.getVTDocsByUserId(organisationId, teamId, id)
+        .then((response: any) => {
+          setUserVTDocs(response.data);
+          console.log(response.data);
+        })
+        .catch((e: Error) => {
+          console.log(e);
+        });
+    };
 
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +190,42 @@ const User: React.FC<Props> = (props: Props) => {
           >
             Update
           </button>
+
           <p>{message}</p>
+
+
+
+          {userVTDocs && userVTDocs.length > 0 &&
+                                         <table className="min-w-full divide-y divide-gray-300">
+                                                         <thead className="bg-gray-50">
+                                                           <tr>
+                                                             <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                                                               FileName
+                                                             </th>
+                                                             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                               Uploaded
+                                                             </th>
+                                                             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                               Word Count
+                                                             </th>
+                                                           </tr>
+                                                         </thead>
+                                                         <tbody className="divide-y divide-gray-200 bg-white">
+                                                           {userVTDocs.map((user, index) => (
+                                                             <tr key={user.id}>
+                                                               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                                                 {user.fileName}
+                                                               </td>
+                                                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.wordCount}</td>
+                                                               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.dateUploaded}</td>
+
+                                                             </tr>
+                                                           ))}
+                                                         </tbody>
+                                                       </table>
+                               }
+
+
         </div>
       ) : (
         <div>
