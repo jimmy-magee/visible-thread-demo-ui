@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
 import { RouteComponentProps, Link } from 'react-router-dom';
 
 import UserService from "../../services/UserService";
@@ -8,7 +8,6 @@ import IVTDoc from "../../types/VTDoc";
 
 interface RouterProps { // type for `match.params`
   organisationId: string;
-  teamId: string;
   id: string; // must be type `string` since value comes from the URL
 }
 
@@ -17,7 +16,6 @@ type Props = RouteComponentProps<RouterProps>;
 const User: React.FC<Props> = (props: Props) => {
   const initialUserState = {
     id: null,
-    teamId: "",
     organisationId: "",
     firstname: "",
     lastname: "",
@@ -27,20 +25,12 @@ const User: React.FC<Props> = (props: Props) => {
   const [currentUser, setCurrentUser] = useState<IUser>(initialUserState);
   const [message, setMessage] = useState<string>("");
   const [organisationId, setOrganisationId] = useState<string>("");
-  const [teamId, setTeamId] = useState<string>("");
   const [userVTDocs, setUserVTDocs] = useState<IVTDoc[]>([]);
 
   useEffect(() => {
-     setOrganisationId(props.match.params.organisationId);
-  }, [props.match.params.organisationId]);
-
-  useEffect(() => {
-      setTeamId(props.match.params.teamId);
-  }, [props.match.params.teamId]);
-
-  useEffect(() => {
+      setOrganisationId(props.match.params.organisationId);
       getUser(props.match.params.organisationId, props.match.params.id);
-      getUserVTDocs(props.match.params.organisationId, props.match.params.teamId, props.match.params.id)
+      getUserVTDocs(props.match.params.organisationId, props.match.params.id)
     }, [props.match.params.id]);
 
   const getUser = (organisationId:string, id: string) => {
@@ -54,8 +44,24 @@ const User: React.FC<Props> = (props: Props) => {
       });
   };
 
-  const getUserVTDocs = (organisationId:string, teamId: string, id: string) => {
-      VTDocService.getVTDocsByUserId(organisationId, teamId, id)
+  const getUserVTDocs = (organisationId:string, id: string) => {
+      VTDocService.getVTDocsByUserId(organisationId, id)
+        .then((response: any) => {
+          setUserVTDocs(response.data);
+          console.log(response.data);
+        })
+        .catch((e: Error) => {
+          console.log(e);
+        });
+    };
+
+  const downloadVTDocX = ( id: string ) => {
+      console.log('Download VTDoc..',id);
+  };
+
+  const downloadVTDoc = (organisationId:string, userId:string, id: string) => {
+      console.log('Download VTDoc..', organisationId);
+      VTDocService.downloadVTDocById(organisationId, userId, id)
         .then((response: any) => {
           setUserVTDocs(response.data);
           console.log(response.data);
@@ -70,6 +76,7 @@ const User: React.FC<Props> = (props: Props) => {
     const { name, value } = event.target;
     setCurrentUser({ ...currentUser, [name]: value });
   };
+
 
   const updatePublished = (status: boolean) => {
     var data = {
@@ -104,7 +111,7 @@ const User: React.FC<Props> = (props: Props) => {
   };
 
   const deleteUser = () => {
-    console.log('Deleting team with id '+currentUser.id)
+    console.log('Deleting user with id '+currentUser.id)
     UserService.remove(organisationId, currentUser.id)
       .then((response: any) => {
         props.history.push("/suppliers");
@@ -208,6 +215,9 @@ const User: React.FC<Props> = (props: Props) => {
                                                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                                                Word Count
                                                              </th>
+                                                             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                                  Download
+                                                             </th>
                                                            </tr>
                                                          </thead>
                                                          <tbody className="divide-y divide-gray-200 bg-white">
@@ -218,7 +228,14 @@ const User: React.FC<Props> = (props: Props) => {
                                                                </td>
                                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.wordCount}</td>
                                                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.dateUploaded}</td>
-
+                                                               <td><button
+                                                                               type="submit"
+                                                                               className="badge badge-success"
+                                                                               onClick={() => downloadVTDocX(user.id)}
+                                                                               //onClick={() => downloadVTDoc(`${user.organisationId}`, `${user.teamId}`, `${user.userId}`, `${user.id}`)}
+                                                                             >
+                                                                               Download
+                                                                             </button></td>
                                                              </tr>
                                                            ))}
                                                          </tbody>

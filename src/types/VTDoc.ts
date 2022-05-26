@@ -1,8 +1,8 @@
 export default interface IVTDoc {
-  id?: any | null,
+  id: any | null,
   organisationId: string,
-  teamId?: string,
-  userId?: string,
+  teamId: string,
+  userId: string,
   fileName?: string,
   wordCount?: number,
   dateUploaded?: string,

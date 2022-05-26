@@ -2,13 +2,20 @@ import http from "../http-common";
 import IVTDoc from "../types/VTDoc"
 
 const getVTDocsByTeamId = (organisationId: string, teamId: string) => {
-  console.log('VTDocService get by teamId(..)')
   return http.get<Array<IVTDoc>>(`/vtdocs/${organisationId}/teams/${teamId}`);
 };
 
-const getVTDocsByUserId = (organisationId: string, teamId: string, userId: string) => {
+const getVTDocsByUserId = (organisationId: string, userId: string) => {
+  return http.get<Array<IVTDoc>>(`/vtdocs/${organisationId}/users/${userId}`);
+};
+
+const getVTDocById = (organisationId: string, userId: string, id:string) => {
+  return http.get<Array<IVTDoc>>(`/vtdocs/${organisationId}/users/${userId}/${id}`);
+};
+
+const downloadVTDocById = (organisationId: string, userId: string, id:string) => {
   console.log('VTDocService get by userId(..)')
-  return http.get<Array<IVTDoc>>(`/vtdocs/${organisationId}/teams/${teamId}/users/${userId}`);
+  return http.get<any>(`/vtdocs/${organisationId}/users/${userId}/${id}/download`);
 };
 
 const get = (organisationId: string, id: string) => {
@@ -34,6 +41,8 @@ const findByName = (organisationId: string, name: string) => {
 const VTDocService = {
   getVTDocsByTeamId,
   getVTDocsByUserId,
+  getVTDocById,
+  downloadVTDocById,
   get,
   create,
   update,
