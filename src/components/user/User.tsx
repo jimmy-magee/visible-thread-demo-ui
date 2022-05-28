@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, MouseEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { RouteComponentProps, Link } from 'react-router-dom';
 
 import UserService from "../../services/UserService";
@@ -13,6 +13,15 @@ interface RouterProps { // type for `match.params`
 
 type Props = RouteComponentProps<RouterProps>;
 
+type FormData = {
+image: FileList;
+title: string;
+description: string;
+created_at: string;
+latitude: string;
+longitude: string;
+};
+
 const User: React.FC<Props> = (props: Props) => {
   const initialUserState = {
     id: null,
@@ -22,10 +31,12 @@ const User: React.FC<Props> = (props: Props) => {
     email: "",
     published: false
   };
+
   const [currentUser, setCurrentUser] = useState<IUser>(initialUserState);
   const [message, setMessage] = useState<string>("");
   const [organisationId, setOrganisationId] = useState<string>("");
   const [userVTDocs, setUserVTDocs] = useState<IVTDoc[]>([]);
+  const [uploadFileList, setUploadFileList] = useState<FileList  | null>(null);
 
   useEffect(() => {
       setOrganisationId(props.match.params.organisationId);
@@ -68,22 +79,37 @@ const User: React.FC<Props> = (props: Props) => {
 
   };
 
-  const downloadVTDoc = (organisationId:string, userId:string, id: string) => {
-      console.log('Download VTDoc..', organisationId);
-      VTDocService.downloadVTDocById(organisationId, userId, id)
-        .then((response: any) => {
-          setUserVTDocs(response.data);
-          console.log(response.data);
-        })
-        .catch((e: Error) => {
-          console.log(e);
-        });
-    };
-
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setCurrentUser({ ...currentUser, [name]: value });
+  };
+
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+
+      const f = event.currentTarget.files;
+      setUploadFileList(f);
+      console.log("file input changed..", event.currentTarget.files);
+
+    };
+
+  const  handleSubmitFile = (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      const userId: string = currentUser.id
+      VTDocService.uploadVTDoc(organisationId, userId, userId, uploadFileList)
+        .then((response: any) => {
+         // setUserVTDocs(response.data);
+
+          console.log(response.data);
+          return getUserVTDocs(organisationId, userId);
+        })
+        .catch((e: Error) => {
+          console.log(e);
+        });
+     console.log("handleSubmitFile..", uploadFileList)
+
+
   };
 
 
@@ -129,6 +155,8 @@ const User: React.FC<Props> = (props: Props) => {
         console.log(e);
       });
   };
+
+
 
   return (
     <div>
@@ -208,6 +236,14 @@ const User: React.FC<Props> = (props: Props) => {
           </button>
 
 
+          <form onSubmit={handleSubmitFile}>
+                  <h1>File Upload</h1>
+                  <input type="file" onChange={onChange} />
+                  <button type="submit">Upload</button>
+                </form>
+
+
+
 
           {userVTDocs && userVTDocs.length > 0 &&
                                          <table className="min-w-full divide-y divide-gray-300">
@@ -217,13 +253,13 @@ const User: React.FC<Props> = (props: Props) => {
                                                                FileName
                                                              </th>
                                                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                               Uploaded
-                                                             </th>
-                                                             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                                                Word Count
                                                              </th>
                                                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                                                  Download
+                                                               Uploaded
+                                                             </th>
+                                                             <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                                               Download
                                                              </th>
                                                            </tr>
                                                          </thead>
